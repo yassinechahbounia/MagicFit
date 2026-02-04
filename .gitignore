@@ -272,7 +272,6 @@ storage/app/public/
 *.docx
 *.pptx
 *.pdf
-README_Pour Moi.md
 
 # Archives
 *.zip
@@ -290,6 +289,9 @@ storage/app/*
 
 # Root level migrations (if duplicate)
 migrations/
+
+# Personal README
+README_Pour Moi.md
 
 # End of MagicFit .gitignore
 # Node
