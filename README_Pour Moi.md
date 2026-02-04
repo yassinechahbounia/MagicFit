@@ -49,8 +49,28 @@ MagicFit est une plateforme complète et innovante de gestion de salle de sport 
 
 ## 🏗️ Architecture Technique
 
+Le projet suit une architecture microservices moderne avec séparation claire des responsabilités :
 
-capture architecture
+```
+MagicFit Platform Architecture
+├── 🖥️ magicfit-backend (Laravel API REST)
+│   ├── Controllers (Business Logic)
+│   ├── Models (Data Layer)
+│   ├── Routes (API Endpoints)
+│   ├── Middleware (Auth, CORS)
+│   └── Migrations (Database Schema)
+├── 🎨 magicfit-frontend (Angular SPA)
+│   ├── Components (UI Elements)
+│   ├── Services (API Communication)
+│   ├── Guards (Route Protection)
+│   ├── Models (TypeScript Interfaces)
+│   └── Interceptors (HTTP Handling)
+└── 🪞 MagicMirror (Smart Mirror Interface)
+    ├── Core Modules (Clock, Weather, News)
+    ├── Custom Modules (MagicFit Integration)
+    ├── Configuration (Personalized Setup)
+    └── IPC Communication (Real-time Updates)
+```
 
 ### Backend (Laravel 10.x)
 - **Framework** : Laravel 10.x avec architecture MVC
@@ -85,6 +105,17 @@ capture architecture
 - **Composer** : Version 2.x pour gestion des dépendances PHP
 - **Git** : Version 2.x pour contrôle de version
 
+### Ressources Matérielles
+- **RAM** : Minimum 8GB, recommandé 16GB
+- **Espace disque** : 5GB d'espace libre
+- **Connexion réseau** : Requise pour les dépendances et l'intégration MagicMirror
+
+### Compétences Requises
+- **Backend** : Connaissances PHP/Laravel
+- **Frontend** : Connaissances JavaScript/TypeScript/Angular
+- **Base de données** : Connaissances MySQL
+- **MagicMirror** : Compréhension des modules et configuration
+
 ## 🚀 Installation et Configuration
 
 ### 📥 1. Clonage du Repository
@@ -110,6 +141,25 @@ composer install
 composer --version
 php artisan --version
 ```
+
+#### Configuration de l'Environnement
+```bash
+# Copie du fichier d'environnement exemple
+cp .env.example .env
+
+# Génération de la clé d'application Laravel
+php artisan key:generate
+
+# Édition du fichier .env pour la base de données
+# Remplissez les informations de votre base MySQL :
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=magicfit
+DB_USERNAME=root
+DB_PASSWORD=votre_mot_de_passe_mysql
+```
+
 #### Migration de la Base de Données
 ```bash
 # Exécution des migrations
@@ -137,6 +187,19 @@ npm --version
 ng version
 ```
 
+#### Configuration du Proxy
+Le fichier `proxy.conf.json` est déjà configuré pour rediriger les requêtes API vers le backend Laravel. Vérifiez son contenu :
+```json
+{
+  "/api": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
+```
+
 ### 🪞 4. Configuration de MagicMirror
 
 #### Installation des Dépendances
@@ -148,6 +211,21 @@ npm install
 
 # Installation des fonts (optionnel mais recommandé)
 npm run install-fonts
+```
+
+#### Configuration Personnalisée
+```bash
+# Copie du fichier de configuration
+cp config/config.js.sample config/config.js
+```
+
+Le fichier `config/config.js` est déjà configuré avec les modules MagicFit personnalisés. Vérifiez les paramètres réseau :
+```javascript
+let config = {
+  address: "127.0.0.1", // ou votre adresse IP réseau
+  port: 8081,
+  // ... autres configurations
+}
 ```
 
 ## 🚀 Démarrage de l'Application
@@ -168,6 +246,11 @@ npm run install-fonts
 4. 🪞 Démarrage de MagicMirror (port 8081)
 5. 🌐 Ouverture automatique de MagicMirror dans le navigateur
 
+**Services démarrés :**
+- **Backend API** : `http://127.0.0.1:8000`
+- **Frontend Web** : `http://localhost:4200`
+- **MagicMirror** : `http://localhost:8081` (ouvert automatiquement)
+
 ### 🔧 Démarrage Manuel (Pour Développement)
 
 #### 1. Préparation de la Base de Données
@@ -183,6 +266,10 @@ cd magicfit-backend
 # Démarrage du serveur de développement
 php artisan serve --host=127.0.0.1 --port=8000
 
+# Ou avec rechargement automatique (si installé)
+php artisan serve --host=0.0.0.0 --port=8000
+```
+
 #### 3. Frontend Angular
 ```bash
 cd magicfit-frontend
@@ -191,6 +278,7 @@ cd magicfit-frontend
 ng serve --host=0.0.0.0 --port=4200
 
 # Ou en mode production
+ng build --configuration production
 ng serve --host=0.0.0.0 --port=4200 --configuration production
 ```
 
@@ -200,6 +288,9 @@ cd MagicMirror
 
 # Démarrage en mode développement
 npm start
+
+# Ou en mode serveur (pour production)
+npm run server
 ```
 
 ## 📖 Guide d'Utilisation
@@ -249,6 +340,11 @@ npm start
 
 ### 🪞 Interface MagicMirror
 
+#### Configuration Initiale
+1. **Accès** : `http://localhost:8081` (ou votre IP réseau)
+2. **Affichage** : Les modules se chargent automatiquement
+3. **Personnalisation** : Modules configurés pour MagicFit
+
 #### Modules Disponibles
 
 ##### Horloge (`clock`)
@@ -291,6 +387,226 @@ npm start
 - **API REST** : Endpoints pour masquage/affichage
 - **Temps réel** : Modifications instantanées
 
+## 🔌 API REST Documentation
+
+### 🏗️ Architecture API
+- **Base URL** : `http://127.0.0.1:8000/api`
+- **Authentification** : Bearer Token (Laravel Sanctum)
+- **Format** : JSON
+- **Versionnage** : Préfixe `/api/v1/` (planifié)
+
+### 🔐 Authentification
+
+| Endpoint | Method | Description | Auth requis |
+|----------|--------|-------------|-------------|
+| `/api/register` | POST | Inscription utilisateur | ❌ |
+| `/api/login` | POST | Connexion utilisateur | ❌ |
+| `/api/logout` | POST | Déconnexion | ✅ |
+| `/api/me` | GET | Profil utilisateur connecté | ✅ |
+| `/api/user/profile` | PUT | Mise à jour profil | ✅ |
+
+**Exemple de connexion :**
+```bash
+curl -X POST http://127.0.0.1:8000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password"}'
+```
+
+### 💪 Gestion des Programmes
+
+| Endpoint | Method | Description | Auth requis |
+|----------|--------|-------------|-------------|
+| `/api/programmes` | GET | Liste des programmes | ✅ |
+| `/api/programmes` | POST | Créer un programme | ✅ |
+| `/api/programmes/{id}` | GET | Détails d'un programme | ✅ |
+| `/api/programmes/{id}` | PUT | Modifier un programme | ✅ |
+| `/api/programmes/{id}` | DELETE | Supprimer un programme | ✅ |
+| `/api/programmes/{id}/exercices` | GET | Exercices d'un programme | ✅ |
+
+**Exemple de création de programme :**
+```json
+{
+  "nom": "Programme Débutant",
+  "description": "Programme pour débutants",
+  "duree_semaines": 8,
+  "niveau": "débutant",
+  "objectif": "prise de masse"
+}
+```
+
+### 🏋️ Gestion des Exercices
+
+| Endpoint | Method | Description | Auth requis |
+|----------|--------|-------------|-------------|
+| `/api/exercices` | GET | Liste des exercices | ✅ |
+| `/api/exercices` | POST | Créer un exercice | ✅ (Admin) |
+| `/api/exercices/{id}` | GET | Détails d'un exercice | ✅ |
+| `/api/exercices/{id}` | PUT | Modifier un exercice | ✅ (Admin) |
+| `/api/exercices/{id}` | DELETE | Supprimer un exercice | ✅ (Admin) |
+| `/api/exercices/search` | GET | Recherche d'exercices | ✅ |
+
+**Paramètres de recherche :**
+- `muscle` : Filtre par muscle ciblé
+- `difficulte` : Filtre par difficulté
+- `equipement` : Filtre par équipement requis
+
+### 📅 Système de Réservations
+
+| Endpoint | Method | Description | Auth requis |
+|----------|--------|-------------|-------------|
+| `/api/reservations` | GET | Mes réservations | ✅ |
+| `/api/reservations` | POST | Créer une réservation | ✅ |
+| `/api/reservations/{id}` | GET | Détails réservation | ✅ |
+| `/api/reservations/{id}` | PUT | Modifier réservation | ✅ |
+| `/api/reservations/{id}` | DELETE | Annuler réservation | ✅ |
+| `/api/reservations/disponibles` | GET | Créneaux disponibles | ✅ |
+
+**Exemple de réservation :**
+```json
+{
+  "equipement_id": 1,
+  "date_debut": "2024-01-15 10:00:00",
+  "date_fin": "2024-01-15 11:00:00"
+}
+```
+
+### 📊 Suivi des Performances
+
+| Endpoint | Method | Description | Auth requis |
+|----------|--------|-------------|-------------|
+| `/api/suivis` | GET | Historique des performances | ✅ |
+| `/api/suivis` | POST | Enregistrer une séance | ✅ |
+| `/api/suivis/{id}` | GET | Détails d'une séance | ✅ |
+| `/api/suivis/{id}` | PUT | Modifier une séance | ✅ |
+| `/api/suivis/{id}` | DELETE | Supprimer une séance | ✅ |
+| `/api/statistiques` | GET | Statistiques personnelles | ✅ |
+
+### 🪞 Contrôle MagicMirror
+
+| Endpoint | Method | Description | Auth requis |
+|----------|--------|-------------|-------------|
+| `/api/mirror/status` | GET | Statut des modules | ✅ |
+| `/api/mirror/horloge/cacher` | POST | Masquer l'horloge | ✅ |
+| `/api/mirror/horloge/afficher` | POST | Afficher l'horloge | ✅ |
+| `/api/mirror/module/{name}/hide` | POST | Masquer un module | ✅ |
+| `/api/mirror/module/{name}/show` | POST | Afficher un module | ✅ |
+
+### 🧮 Outils Fitness
+
+| Endpoint | Method | Description | Auth requis |
+|----------|--------|-------------|-------------|
+| `/api/outils/imc` | POST | Calculer IMC | ✅ |
+| `/api/outils/calories` | POST | Calculer besoins caloriques | ✅ |
+| `/api/outils/macros` | POST | Calculer macronutriments | ✅ |
+| `/api/outils/objectifs` | POST | Définir objectifs | ✅ |
+
+### 🤖 Coach Virtuel IA
+
+| Endpoint | Method | Description | Auth requis |
+|----------|--------|-------------|-------------|
+| `/api/coach/conseils` | GET | Conseils personnalisés | ✅ |
+| `/api/coach/recommandations` | GET | Programmes recommandés | ✅ |
+| `/api/coach/analyse` | POST | Analyse des progrès | ✅ |
+
+## 🐛 Problèmes Connus et Solutions
+
+### Erreur "No application encryption key has been specified"
+**Solution** : Exécutez `php artisan key:generate` dans le dossier `magicfit-backend`
+
+### Erreur de Migration de Base de Données
+**Cause** : Contrainte de clé étrangère incorrecte entre `exercices` et `programmes`
+**Solution** :
+```bash
+cd magicfit-backend
+php artisan migrate:rollback
+php artisan migrate
+```
+
+### MagicMirror ne s'intègre pas
+**Cause** : Incohérence d'adresse IP entre frontend et backend
+**Solution** : Mettez à jour `app/Http/Controllers/MirrorController.php` pour utiliser l'IP réseau au lieu de localhost
+
+### Table 'exercices' already exists
+**Solution** : Supprimez manuellement la table ou utilisez `php artisan migrate:fresh`
+
+## 🧪 Tests et Qualité
+
+### 🖥️ Tests Backend (Laravel)
+
+#### Exécution des Tests
+```bash
+cd magicfit-backend
+
+# Exécuter tous les tests
+php artisan test
+
+# Tests avec couverture
+php artisan test --coverage
+
+# Tests spécifiques
+php artisan test --filter=UserTest
+
+# Tests en mode verbose
+php artisan test -v
+```
+
+#### Structure des Tests
+```
+tests/
+├── Feature/          # Tests fonctionnels
+│   ├── AuthTest.php
+│   ├── ProgrammeTest.php
+│   └── ReservationTest.php
+├── Unit/            # Tests unitaires
+│   ├── Models/
+│   └── Services/
+└── CreatesApplication.php
+```
+
+### 🎨 Tests Frontend (Angular)
+
+#### Exécution des Tests
+```bash
+cd magicfit-frontend
+
+# Tests unitaires
+ng test
+
+# Tests unitaires avec couverture
+ng test --code-coverage
+
+# Tests end-to-end (si configurés)
+ng e2e
+```
+
+#### Structure des Tests
+```
+src/
+├── app/
+│   ├── components/
+│   │   └── *.component.spec.ts
+│   └── services/
+│       └── *.service.spec.ts
+└── environments/
+    └── *.spec.ts
+```
+
+### 🪞 Tests MagicMirror
+
+#### Tests des Modules
+```bash
+cd MagicMirror
+
+# Tests unitaires
+npm test
+
+# Tests avec couverture
+npm run test:coverage
+
+# Tests end-to-end
+npm run test:e2e
+```
+
 ## 🤝 Contribution
 
 ### 📋 Processus de Contribution
@@ -310,9 +626,103 @@ npm start
    git checkout -b docs/AmeliorationDocumentation
    ```
 
+3. **Développer et Tester**
+   ```bash
+   # Backend
+   cd magicfit-backend
+   composer install
+   php artisan test
+
+   # Frontend
+   cd ../magicfit-frontend
+   npm install
+   ng test
+
+   # MagicMirror
+   cd ../MagicMirror
+   npm install
+   npm test
+   ```
+
+4. **Commit des Changements**
+   ```bash
+   git add .
+   git commit -m "feat: ajouter nouvelle fonctionnalité
+
+   - Description détaillée des changements
+   - Impact sur les autres composants
+   - Tests ajoutés/modifiés"
+   ```
+
+5. **Push et Pull Request**
+   ```bash
+   git push origin feature/NouvelleFonctionnalite
+   ```
+   Puis créez une Pull Request sur GitHub
+
+### 📏 Standards de Code
+
+#### Backend (Laravel)
+- PSR-12 pour le style de code
+- PHPStan pour l'analyse statique
+- Tests avec PHPUnit
+- Documentation PHPDoc
+
+#### Frontend (Angular)
+- Angular CLI pour la génération
+- ESLint pour le linting
+- Prettier pour le formatage
+- Tests avec Jasmine/Karma
+
+#### MagicMirror
+- ESLint pour le JavaScript
+- Tests avec Jest
+- Documentation JSDoc
+
+### 🏷️ Convention de Commits
+```
+feat: nouvelle fonctionnalité
+fix: correction de bug
+docs: changements de documentation
+style: changements de style (formatage, etc.)
+refactor: refactorisation du code
+test: ajout ou modification de tests
+chore: changements divers (build, etc.)
+```
+
+## 📊 Métriques et Qualité
+
+### 🔍 Analyse de Code
+```bash
+# Backend - PHPStan
+cd magicfit-backend
+./vendor/bin/phpstan analyse
+
+# Frontend - ESLint
+cd ../magicfit-frontend
+ng lint
+
+# MagicMirror - ESLint
+cd ../MagicMirror
+npm run lint
+```
+
+### 📈 Couverture de Tests
+- **Objectif** : >80% de couverture
+- **Backend** : PHPUnit avec rapports HTML
+- **Frontend** : Karma avec Istanbul
+- **MagicMirror** : Jest avec couverture
+
 ## 📝 Licence
 
 Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+**Droits et Conditions :**
+- ✅ Utilisation personnelle et commerciale
+- ✅ Modification et distribution
+- ✅ Utilisation privée et commerciale
+- ❌ Responsabilité limitée
+- ⚠️ Attribution requise
 
 ## 👥 Équipe de Développement
 
@@ -390,6 +800,18 @@ Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de
 - [Guide Angular](https://angular.io/guide)
 - [MagicMirror Docs](https://docs.magicmirror.builders)
 - [Bootstrap Docs](https://getbootstrap.com/docs)
+
+---
+
+## ⚠️ Notes Importantes
+
+**Ce projet est en développement actif.** Certaines fonctionnalités peuvent être sujettes à changement sans préavis.
+
+**Sécurité :** Ne commitez jamais de clés API, mots de passe, ou informations sensibles dans le code.
+
+**Support :** Pour toute question, consultez d'abord la [documentation](./docs/) ou ouvrez une [issue](https://github.com/magicfit/MagicFit/issues).
+
+**Contribution :** Toutes les contributions sont les bienvenues ! Lisez le [guide de contribution](./CONTRIBUTING.md) pour commencer.
 
 ---
 
